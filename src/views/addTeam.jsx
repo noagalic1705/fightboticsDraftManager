@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { db } from "../firebaseConfiguration"; // Import your Firebase config file
-import { doc, setDoc, collection } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
-const TeamForm = () => {
+const AddTeam = () => {
   const [name, setName] = useState("");
   const [opponent, setOpponent] = useState("");
   const [stage, setStage] = useState("");
@@ -106,4 +106,4 @@ const TeamForm = () => {
   );
 };
 
-export default TeamForm;
+export default AddTeam;
