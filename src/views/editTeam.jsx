@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebaseConfiguration"; // Import your Firebase config file
+import { db } from "./firebaseConfig"; // Import your Firebase config file
 import { collection, addDoc, getDocs } from "firebase/firestore";
 
 const TeamForm = () => {
@@ -25,7 +25,7 @@ const TeamForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const newTeam = {
+      const editedTeam = {
         name,
         opponent,
         stage,
@@ -34,7 +34,7 @@ const TeamForm = () => {
         isPenalized,
         isReady,
       };
-      await addDoc(collection(db, "teams"), newTeam);
+      await addDoc(collection(db, "teams"), editedTeam);
       alert("Team added successfully!");
       // Reset form fields
       setName("");

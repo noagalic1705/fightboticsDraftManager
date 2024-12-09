@@ -1,4 +1,3 @@
-import './App.css';
 import TeamForm from './views/addTeam';
 
 function App() {
