@@ -1,10 +1,18 @@
-import TeamForm from './views/addTeam';
+import TeamForm from "./views/addTeam";
+import LoginPage from "./views/loginPage";
+import TeamDash from "./views/teamDash";
 
 function App() {
   return (
     <div className="App">
       <div>
-        <TeamForm />
+        {/*
+          <TeamForm />
+        */}
+        {/*
+        <LoginPage />
+        */}
+        <TeamDash/>
       </div>
     </div>
   );
