@@ -1,3 +1,4 @@
+
 import React from 'react';
 import './index.css';
 import AddTeam from './views/addTeam';
@@ -12,6 +13,7 @@ import { auth } from "./firebaseConfiguration";
 export default function App() {
   const [user] = useAuthState(auth);
   return (
+
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AddTeam />} />
@@ -20,6 +22,7 @@ export default function App() {
         <Route path="add" element={user ? <Dashboard /> : <AdminLogin />} />
       </Routes>
     </BrowserRouter>
+
   );
 }
 

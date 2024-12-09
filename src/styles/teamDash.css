@@ -1,0 +1,60 @@
+@import "./fightbotics.css";
+
+.teamDash {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.teamDash hr {
+  border: 1px solid black;
+  width: 100%;
+}
+
+.teamNameDash {
+  font-size: 40px;
+  margin: 16px 0;
+}
+
+.nextRivalTeamDash {
+  padding: 0 20px;
+  width: 100%;
+  margin: 20px 0;
+}
+.nextRivalTeamDash h4 {
+  font-size: 24px;
+}
+
+.nextRivalTeamDash h3 {
+  font-size: 32px;
+}
+.timerDash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timerDash h4 {
+  font-size: 32px;
+  margin-top: 12px;
+}
+
+.timerDash h2 {
+  font-size: 76px;
+  font-weight: 500;
+  height: fit-content;
+  margin: 20px 0 10px 0;
+}
+
+.teamReadyButton {
+  padding: 8px 20px;
+  background-color: var(--fbgreen);
+  border-radius: 16px;
+  margin-top: 48px;
+  color: white;
+  text-transform: uppercase;
+  font-size: 32px;
+  font-weight: 700;
+}
