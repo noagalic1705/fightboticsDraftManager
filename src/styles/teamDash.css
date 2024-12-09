@@ -1,3 +1,5 @@
+@import "./fightbotics.css";
+
 .teamDash {
   width: 100vw;
   height: 100vh;
@@ -48,7 +50,7 @@
 
 .teamReadyButton {
   padding: 8px 20px;
-  background-color: #40bb4e;
+  background-color: var(--fbgreen);
   border-radius: 16px;
   margin-top: 48px;
   color: white;

@@ -12,7 +12,7 @@ function App() {
         {/*
         <LoginPage />
         */}
-        <TeamDash/>
+        <TeamDash />
       </div>
     </div>
   );

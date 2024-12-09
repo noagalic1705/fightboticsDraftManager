@@ -1,3 +1,5 @@
+@import "./fightbotics.css";
+
 .inputLogin {
   background-color: rgb(222, 222, 222);
   /*border: 2px solid gray;*/
@@ -26,7 +28,7 @@
 }
 
 .buttonLogin {
-  background-color: blueviolet; /*Neka fightbotics boja ovdje*/
+  background-color: var(--fbpurple); /*Neka fightbotics boja ovdje*/
   border-radius: 10px;
   width: 120px;
   height: 40px;
@@ -34,7 +36,7 @@
   color: white;
 }
 .buttonLogin:active {
-  background-color: yellow;
+  background-color: var(--fbgreen);
   color: black;
 }
 
