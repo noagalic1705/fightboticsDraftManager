@@ -11,7 +11,9 @@ const AddTeam = () => {
   const [isPenalized, setIsPenalized] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [password, setPassword] = useState("");
+  const [startAt, setStartAt] = useState("");
   const [shortcode, setSC] = useState("");
+  const [timerStarted, setTimerStarted] = useState(false);
 
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -37,7 +39,9 @@ const AddTeam = () => {
         isPenalized,
         isReady,
         password,
-        shortcode
+        shortcode,
+        startAt,
+        timerStarted
       };
       await setDoc(doc(db, "teams", name), newTeam);
       alert("Team added successfully!");
@@ -51,6 +55,8 @@ const AddTeam = () => {
       setIsReady(false);
       setPassword("");
       setSC("");
+      setStartAt("");
+      setTimerStarted(false);
     } catch (error) {
       console.error("Error adding team: ", error);
       alert("Failed to add team.");
