@@ -5,6 +5,7 @@
   /*border: 2px solid gray;*/
   border-radius: 8px;
   font-size: 28px;
+  color: var(--fbTextInvert);
 }
 
 .inputHeadingLogin {
@@ -14,8 +15,8 @@
 .loginField {
   display: flex;
   flex-direction: column;
-  width: 100%; /*Eventualno ak oces da idem sam s tipa 80% widthom*/
-  padding: 20px 40px 0 40px;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .headingLogin {
@@ -25,23 +26,41 @@
   text-align: center;
   font-weight: 600;
   text-transform: uppercase;
+  margin-bottom: 40px;
+}
+
+.dropdownLogin {
+  color: var(--fbTextInvert);
+  background-color: var(--fbText);
+  width: 100%;
+  font-size: 28px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
 }
 
 .buttonLogin {
-  background-color: var(--fbpurple); /*Neka fightbotics boja ovdje*/
+  background-color: var(--fbAction);
   border-radius: 10px;
   width: 120px;
   height: 40px;
   margin-top: 20px;
-  color: white;
+  color: var(--fbText);
 }
 .buttonLogin:active {
-  background-color: var(--fbgreen);
-  color: black;
+  background-color: var(--fbAccent);
+  color: var(--fbTextInvert);
 }
 
 .login {
   display: flex;
   flex-direction: column;
   align-items: center;
+  font-family: "JetBrains Mono";
+  color: var(--fbText);
+  background-color: var(--fbBg1);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0px 40px 0 40px;
 }
