@@ -1,8 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
+
 :root {
-  --fbpurple: #7f5af0;
-  --fbgreen: #2cb67d;
-  --fbgray: #242629;
-  --fbdarkgray: #16161a;
-  --fbtextwhite: #efefef;
-  --fbtextinvert: #121212;
+  --fbAction: #7f5af0;
+  --fbAccent: #2cb67d;
+  --fbBg1: #242629;
+  --fbBg2: #16161a;
+  --fbText: #efefef;
+  --fbTextInvert: #121212;
 }

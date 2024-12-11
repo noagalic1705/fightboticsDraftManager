@@ -45,13 +45,16 @@ const LoginPage = () => {
     } catch (err) {
       setError("An error occurred during login.");
     }
-  }
+  };
 
   useEffect(() => {
     const fetchTeams = async () => {
       try {
         const teamsSnapshot = await getDocs(collection(db, "teams"));
-        const teamDocs = teamsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const teamDocs = teamsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setTeams(teamDocs);
       } catch (error) {
         console.error("Error fetching teams: ", error);
@@ -65,8 +68,14 @@ const LoginPage = () => {
     <section className="login">
       <h1 className="headingLogin">Fightbotics Fight Manager</h1>
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      <select name="Teams" onChange={(e) => setUsername(e.target.value)}>
-        <option value="">Odaberi svoj tim</option>
+      <select
+        name="Teams"
+        onChange={(e) => setUsername(e.target.value)}
+        className="dropdownLogin"
+      >
+        <option value="">
+          Odaberi svoj tim
+        </option>
         {teams.map((team) => (
           <option key={team.id} value={team.id}>
             {team.id}
