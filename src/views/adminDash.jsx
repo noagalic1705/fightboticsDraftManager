@@ -7,6 +7,8 @@ const Dashboard = () => {
   const [teams, setTeams] = useState([]);
   const [matchups, setMatchups] = useState([]);
 
+  
+
   useEffect(() => {
     const fetchTeams = async () => {
       const querySnapshot = await getDocs(collection(db, "teams"));
@@ -120,7 +122,7 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold mb-6">Teams</h1>
         <div className="grid grid-cols-3 gap-6">
           {teams.map((team) => (
-            <TeamCard key={team.id} team={team} />
+            <TeamCard key={team.id} team={team} opponent={team.opponent} />
           ))}
         </div>
       </div>

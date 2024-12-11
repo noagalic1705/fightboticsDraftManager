@@ -1,161 +1,209 @@
-import React, { useState, useEffect } from "react";
-import { db } from "./firebaseConfig"; // Import your Firebase config file
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import Timer from "../components/timer";
+import { db } from "../firebaseConfiguration";
+import {
+  doc,
+  updateDoc,
+  getDoc,
+  collection,
+  getDocs,
+  serverTimestamp,
+} from "firebase/firestore";
 
-const TeamForm = () => {
-  const [name, setName] = useState("");
-  const [opponent, setOpponent] = useState("");
-  const [stage, setStage] = useState("");
-  const [stageNumber, setStageNumber] = useState("");
-  const [timeLeft, setTimeLeft] = useState("");
-  const [isPenalized, setIsPenalized] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-  const [teams, setTeams] = useState([]);
+const EditTeam = () => {
+  const { teamId } = useParams(); // Get teamId from the route
+  const navigate = useNavigate();
 
-  // Fetch existing teams from Firestore to populate the opponent dropdown
+  const [team, setTeam] = useState(null);
+  const [opponents, setOpponents] = useState([]);
+  const [selectedOpponent, setSelectedOpponent] = useState("");
+
   useEffect(() => {
-    const fetchTeams = async () => {
-      const teamsCollection = collection(db, "teams");
-      const teamsSnapshot = await getDocs(teamsCollection);
-      setTeams(teamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    const fetchTeam = async () => {
+      try {
+        const teamDoc = await getDoc(doc(db, "teams", teamId));
+        if (teamDoc.exists()) {
+          setTeam({ id: teamDoc.id, ...teamDoc.data() });
+          setSelectedOpponent(teamDoc.data().opponent || "");
+        }
+      } catch (error) {
+        console.error("Error fetching team: ", error);
+      }
     };
-    fetchTeams();
-  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const fetchOpponents = async () => {
+      try {
+        const teamsSnapshot = await getDocs(collection(db, "teams"));
+        const availableOpponents = [];
+        teamsSnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (!data.opponent && doc.id !== teamId) {
+            availableOpponents.push({ id: doc.id, name: data.name || doc.id });
+          }
+        });
+        setOpponents(availableOpponents);
+      } catch (error) {
+        console.error("Error fetching opponents: ", error);
+      }
+    };
+
+    fetchTeam();
+    fetchOpponents();
+  }, [teamId]);
+
+  const handleSave = async () => {
     try {
-      const editedTeam = {
-        name,
-        opponent,
-        stage,
-        stageNumber,
-        timeLeft,
-        isPenalized,
-        isReady,
-      };
-      await addDoc(collection(db, "teams"), editedTeam);
-      alert("Team added successfully!");
-      // Reset form fields
-      setName("");
-      setOpponent("");
-      setStage("");
-      setStageNumber("");
-      setTimeLeft("");
-      setIsPenalized(false);
-      setIsReady(false);
+      const teamRef = doc(db, "teams", teamId);
+      await updateDoc(teamRef, {
+        opponent: selectedOpponent || null,
+      });
+
+      if (selectedOpponent) {
+        const opponentRef = doc(db, "teams", selectedOpponent);
+        await updateDoc(opponentRef, { opponent: teamId });
+      }
+
+      navigate("/dashboard");
     } catch (error) {
-      console.error("Error adding team: ", error);
-      alert("Failed to add team.");
+      console.error("Error saving changes: ", error);
     }
   };
 
-  const stageOptions = [
-    "Group Stage",
-    "Quarterfinals",
-    "Semifinals",
-    "Finals",
-    "Round of 16",
-    "Third Place Match",
-    "Preliminaries",
-    "Playoffs",
-  ];
+  const handleResetTimer = async () => {
+    try {
+      const teamRef = doc(db, "teams", teamId);
+      await updateDoc(teamRef, { startAt: serverTimestamp() });
+    } catch (error) {
+      console.error("Error resetting timer: ", error);
+    }
+  };
 
-  const stageNumberOptions = ["1", "2", "3", "4"]; // Placeholder
+  const handleStartTimer = async () => {
+    try {
+      const teamRef = doc(db, "teams", teamId);
+      await updateDoc(teamRef, { timerStarted: true });
+    } catch (error) {
+      console.error("Error starting timer: ", error);
+    }
+  };
+
+  const handleStopTimer = async () => {
+    try {
+      const teamRef = doc(db, "teams", teamId);
+      await updateDoc(teamRef, { timerStarted: false });
+    } catch (error) {
+      console.error("Error stopping timer: ", error);
+    }
+  };
+
+  const handlePenalize = async () => {
+    try {
+      const teamRef = doc(db, "teams", teamId);
+      await updateDoc(teamRef, { isPenalized: true });
+    } catch (error) {
+      console.error("Error penalizing team: ", error);
+    }
+  };
+
+  const handleRemovePenalty = async () => {
+    try {
+      const teamRef = doc(db, "teams", teamId);
+      await updateDoc(teamRef, { isPenalized: false });
+    } catch (error) {
+      console.error("Error removing penalty: ", error);
+    }
+  };
+
+  const handleClearOpponent = async () => {
+    try {
+      const teamRef = doc(db, "teams", teamId);
+      await updateDoc(teamRef, { opponent: null });
+
+      if (team?.opponent) {
+        const opponentRef = doc(db, "teams", team.opponent);
+        await updateDoc(opponentRef, { opponent: null });
+      }
+      setSelectedOpponent("");
+    } catch (error) {
+      console.error("Error clearing opponent: ", error);
+    }
+  };
+
+  if (!team) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Team Name:</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+    <section className="p-4 bg-gray-200 rounded-md max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold text-center mb-4">{team.name || team.id}</h1>
+      <div className="mb-4">
+        <h4 className="text-lg font-semibold">Preostalo vrijeme:</h4>
+        <Timer startAt={team.startAt} timerStart={team.timerStarted} />
+        <div className="flex gap-2 mt-2">
+          <button
+            onClick={handleResetTimer}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Reset
+          </button>
+          <button
+            onClick={handleStartTimer}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Start
+          </button>
+          <button
+            onClick={handleStopTimer}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Stop
+          </button>
+        </div>
       </div>
-
-      <div>
-        <label>Opponent:</label>
+      <div className="mb-4">
+        <h4 className="text-lg font-semibold">Protivnik:</h4>
         <select
-          value={opponent}
-          onChange={(e) => setOpponent(e.target.value)}
-          required
+          value={selectedOpponent}
+          onChange={(e) => setSelectedOpponent(e.target.value)}
+          className="px-4 py-2 rounded border border-gray-300 w-full"
         >
-          <option value="">Select an Opponent</option>
-          {teams.map((team) => (
-            <option key={team.id} value={team.name}>
-              {team.name}
+          <option value="">Nema protivnika</option>
+          {opponents.map((opponent) => (
+            <option key={opponent.id} value={opponent.id}>
+              {opponent.name}
             </option>
           ))}
         </select>
-      </div>
-
-      <div>
-        <label>Stage:</label>
-        <select
-          value={stage}
-          onChange={(e) => setStage(e.target.value)}
-          required
+        <button
+          onClick={handleClearOpponent}
+          className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
         >
-          <option value="">Select a Stage</option>
-          {stageOptions.map((option, index) => (
-            <option key={index} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+          Očisti protivnika
+        </button>
       </div>
-
-      <div>
-        <label>Stage Number:</label>
-        <select
-          value={stageNumber}
-          onChange={(e) => setStageNumber(e.target.value)}
-          required
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={handlePenalize}
+          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
         >
-          <option value="">Select a Stage Number</option>
-          {stageNumberOptions.map((option, index) => (
-            <option key={index} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+          Penaliziraj
+        </button>
+        <button
+          onClick={handleRemovePenalty}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Makni penal
+        </button>
       </div>
-
-      <div>
-        <label>Time Left (MM:SS):</label>
-        <input
-          type="text"
-          pattern="\\d{2}:\\d{2}"
-          placeholder="00:00"
-          value={timeLeft}
-          onChange={(e) => setTimeLeft(e.target.value)}
-          required
-        />
-      </div>
-
-      <div>
-        <label>Penalized:</label>
-        <input
-          type="checkbox"
-          checked={isPenalized}
-          onChange={(e) => setIsPenalized(e.target.checked)}
-        />
-      </div>
-
-      <div>
-        <label>Ready:</label>
-        <input
-          type="checkbox"
-          checked={isReady}
-          onChange={(e) => setIsReady(e.target.checked)}
-        />
-      </div>
-
-      <button type="submit">Add Team</button>
-    </form>
+      <button
+        onClick={handleSave}
+        className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 w-full"
+      >
+        Spremi
+      </button>
+    </section>
   );
 };
 
-export default TeamForm;
+export default EditTeam;

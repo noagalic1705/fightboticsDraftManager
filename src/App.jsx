@@ -9,6 +9,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebaseConfiguration";
+import EditTeam from './views/editTeam';
 
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="teamDash" element={<TeamDash />}/>
         <Route path="admin" element={<AdminLogin />} />
         <Route path="dashboard" element={user ? <Dashboard /> : <AdminLogin />} />
+        <Route path="editTeam/:teamId" element={user ? <EditTeam /> : <AdminLogin />} />
         <Route path="add" element={user ? <Dashboard /> : <AdminLogin />} />
       </Routes>
     </BrowserRouter>

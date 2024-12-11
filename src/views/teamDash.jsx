@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../styles/teamDash.css";
 import { useNavigate } from "react-router";
 import Timer from "../components/timer"
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../firebaseConfiguration";
 
 const TimerFull = ({ title, seconds, timerStarted, isNegative }) => {
@@ -35,6 +35,18 @@ const TeamDash = () => {
   const handleNegativeTimeOpponent = () => {
     setIsNegativeOpponent(true);
   };
+  const handleReady = async (e) => {
+    e.preventDefault();
+    try {
+      const teamRef = doc(db, "teams", team.id);
+      await updateDoc(teamRef, {
+        isReady: true
+      })
+    }
+    catch (error) {
+      console.error("Error saving changes: ", error);
+    }
+  }
 
   useEffect(() => {
     const storedData = localStorage.getItem("teamData");
@@ -55,7 +67,7 @@ const TeamDash = () => {
           if (doc.id === teamData.id) {
             setTeam({ id: doc.id, ...doc.data() });
           }
-          else if (doc.id === teamData.opponent){
+          else if (doc.id === teamData.opponent) {
             setOpponent({ id: doc.id, ...doc.data() });
           }
         });
@@ -80,11 +92,11 @@ const TeamDash = () => {
         <h3 className="nextRivalNameDash">{team.opponent}</h3>
       </article>
       <hr />
-      <TimerFull title="Preostalo vrijeme" seconds={team.startAt} timerStarted={team.timerStarted} isNegative={handleNegativeTimeTeam}/>
+      <TimerFull title="Preostalo vrijeme" seconds={team.startAt} timerStarted={team.timerStarted} isNegative={handleNegativeTimeTeam} />
       <hr />
-      <TimerFull title="Protivničko vrijeme" seconds={opponent.startAt} timerStarted={opponent.timerStarted} isNegative={handleNegativeTimeOpponent}/>
+      <TimerFull title="Protivničko vrijeme" seconds={opponent.startAt} timerStarted={opponent.timerStarted} isNegative={handleNegativeTimeOpponent} />
       <hr />
-      <button className="teamReadyButton">Spreman</button>
+      <button className="teamReadyButton" onClick={(e) => handleReady(e)}>Spreman</button>
     </section>
   );
 };
