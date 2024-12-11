@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const Timer = ({ startAt, timerStart, onNegative }) => {
+const Timer = ({ startAt, timerStart, onNegative, textColor }) => {
   const [timeLeft, setTimeLeft] = useState("");
   const [timerStarted, setTimerStarted] = useState(true);
 
@@ -17,7 +17,9 @@ const Timer = ({ startAt, timerStart, onNegative }) => {
       const minutes = Math.floor(Math.abs(remainingTime) / 60);
       const seconds = Math.abs(remainingTime) % 60;
 
-      const formattedTime = `${remainingTime < 0 ? "-" : ""}${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      const formattedTime = `${remainingTime < 0 ? "-" : ""}${String(
+        minutes
+      ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
       setTimeLeft(formattedTime);
 
       if (remainingTime < 0 && onNegative) {
@@ -31,7 +33,7 @@ const Timer = ({ startAt, timerStart, onNegative }) => {
     return () => clearInterval(intervalId);
   }, [startAt, onNegative, timerStart]);
 
-  return <span>{timeLeft}</span>;
+  return <span style={textColor && { color: textColor }}>{timeLeft}</span>;
 };
 
 export default Timer;
