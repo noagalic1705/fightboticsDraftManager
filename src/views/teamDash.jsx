@@ -1,23 +1,40 @@
 import React, { useEffect, useState } from "react";
 import "../styles/teamDash.css";
 import { useNavigate } from "react-router";
+import Timer from "../components/timer"
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebaseConfiguration";
 
-const Timer = ({ title, seconds }) => {
+const TimerFull = ({ title, seconds, timerStarted, isNegative }) => {
   return (
     <div className="timerDash">
       <h4 className="">{title}</h4>
       <h2 className="">
-        {Math.floor(seconds / 60)}:{seconds % 60 ? seconds % 60 : "00"}
+        <Timer startAt={seconds} timerStart={timerStarted} onNegative={isNegative} />
       </h2>
     </div>
   );
 };
 
 const TeamDash = () => {
+
+  const mockStartAt = { seconds: Math.floor(Date.now() / 1000) - 800 }; // AKO TREBA ZA TEST
+
+  const [isNegativeTeam, setIsNegativeTeam] = useState(false);
+  const [isNegativeOpponent, setIsNegativeOpponent] = useState(false);
   const [teamData, setTeamData] = useState(null);
-  const [secondsTeam, setSecondsTeam] = useState("15:00");
-  const [secondsOpp, setSecondsOpp] = useState("15:00")
+  const [team, setTeam] = useState(null);
+  const [opponent, setOpponent] = useState(null);
   const navigate = useNavigate();
+
+
+  const handleNegativeTimeTeam = () => {
+    setIsNegativeTeam(true);
+  };
+
+  const handleNegativeTimeOpponent = () => {
+    setIsNegativeOpponent(true);
+  };
 
   useEffect(() => {
     const storedData = localStorage.getItem("teamData");
@@ -28,8 +45,30 @@ const TeamDash = () => {
     setTeamData(JSON.parse(storedData));
   }, [navigate]);
 
-  if (!teamData) {
-    return <div>Loading...</div>;
+  useEffect(() => {
+    if (!teamData) return;
+
+    const fetchTeams = async () => {
+      try {
+        const teamsSnapshot = await getDocs(collection(db, "teams"));
+        teamsSnapshot.forEach((doc) => {
+          if (doc.id === teamData.id) {
+            setTeam({ id: doc.id, ...doc.data() });
+          }
+          else if (doc.id === teamData.opponent){
+            setOpponent({ id: doc.id, ...doc.data() });
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching teams: ", error);
+      }
+    };
+
+    fetchTeams();
+  }, [teamData]);
+
+  if (!teamData || !team || !opponent) {
+    return <div>Loading...</div>; // Show loading state until all data is ready
   }
 
   return (
@@ -38,12 +77,12 @@ const TeamDash = () => {
       <hr />
       <article className="nextRivalTeamDash">
         <h4>Sljedeći protivnik:</h4>
-        <h3 className="nextRivalNameDash">{teamData.opponent}</h3>
+        <h3 className="nextRivalNameDash">{team.opponent}</h3>
       </article>
       <hr />
-      <Timer title="Preostalo vrijeme" seconds={secondsTeam} />
+      <TimerFull title="Preostalo vrijeme" seconds={team.startAt} timerStarted={team.timerStarted} isNegative={handleNegativeTimeTeam}/>
       <hr />
-      <Timer title="Protivničko vrijeme" seconds={secondsOpp} />
+      <TimerFull title="Protivničko vrijeme" seconds={opponent.startAt} timerStarted={opponent.timerStarted} isNegative={handleNegativeTimeOpponent}/>
       <hr />
       <button className="teamReadyButton">Spreman</button>
     </section>

@@ -35,7 +35,7 @@ const LoginPage = () => {
 
       const validPassword = await foundTeam.password;
 
-      if (validPassword != password) {
+      if (validPassword !== password) {
         setError("Invalid password.");
         return;
       }
