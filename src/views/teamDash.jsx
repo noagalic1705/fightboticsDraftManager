@@ -68,7 +68,7 @@ const TeamDash = () => {
   }, [teamData]);
 
   if (!teamData || !team || !opponent) {
-    return <div>Loading...</div>; // Show loading state until all data is ready
+    return <div>Loading...</div>;
   }
 
   return (
