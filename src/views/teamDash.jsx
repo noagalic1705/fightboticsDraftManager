@@ -1,23 +1,27 @@
 import React, { useEffect, useState } from "react";
 import "../styles/teamDash.css";
 import { useNavigate } from "react-router";
-import Timer from "../components/timer"
+import Timer from "../components/timer";
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../firebaseConfiguration";
 
-const TimerFull = ({ title, seconds, timerStarted, isNegative }) => {
+const TimerFull = ({ title, seconds, timerStarted, isNegative, textColor }) => {
   return (
-    <div className="timerDash">
-      <h4 className="">{title}</h4>
-      <h2 className="">
-        <Timer startAt={seconds} timerStart={timerStarted} onNegative={isNegative} />
+    <div className="timerDash ">
+      <h4>{title}</h4>
+      <h2>
+        <Timer
+          startAt={seconds}
+          timerStart={timerStarted}
+          onNegative={isNegative}
+          textColor={textColor}
+        />
       </h2>
     </div>
   );
 };
 
 const TeamDash = () => {
-
   const mockStartAt = { seconds: Math.floor(Date.now() / 1000) - 800 }; // AKO TREBA ZA TEST
 
   const [isNegativeTeam, setIsNegativeTeam] = useState(false);
@@ -26,7 +30,6 @@ const TeamDash = () => {
   const [team, setTeam] = useState(null);
   const [opponent, setOpponent] = useState(null);
   const navigate = useNavigate();
-
 
   const handleNegativeTimeTeam = () => {
     setIsNegativeTeam(true);
@@ -40,13 +43,14 @@ const TeamDash = () => {
     try {
       const teamRef = doc(db, "teams", team.id);
       await updateDoc(teamRef, {
-        isReady: true
-      })
-    }
-    catch (error) {
+        isReady: true,
+      });
+    } catch (error) {
       console.error("Error saving changes: ", error);
     }
-  }
+  };
+
+  console.log(team);
 
   useEffect(() => {
     const storedData = localStorage.getItem("teamData");
@@ -66,8 +70,7 @@ const TeamDash = () => {
         teamsSnapshot.forEach((doc) => {
           if (doc.id === teamData.id) {
             setTeam({ id: doc.id, ...doc.data() });
-          }
-          else if (doc.id === teamData.opponent) {
+          } else if (doc.id === teamData.opponent) {
             setOpponent({ id: doc.id, ...doc.data() });
           }
         });
@@ -89,14 +92,52 @@ const TeamDash = () => {
       <hr />
       <article className="nextRivalTeamDash">
         <h4>Sljedeći protivnik:</h4>
-        <h3 className="nextRivalNameDash">{team.opponent}</h3>
+        <h3 className="nextRivalNameDash">{team.opponent ?? "TBA"}</h3>
       </article>
       <hr />
-      <TimerFull title="Preostalo vrijeme" seconds={team.startAt} timerStarted={team.timerStarted} isNegative={handleNegativeTimeTeam} />
+      <article
+        className={
+          isNegativeTeam
+            ? "yellow"
+            : team.isReady
+            ? "green"
+            : team.isPenalized
+            ? "red"
+            : ""
+        }
+      >
+        <TimerFull
+          title="Preostalo vrijeme"
+          seconds={team.startAt}
+          timerStarted={team.timerStarted}
+          isNegative={handleNegativeTimeTeam}
+        />
+      </article>
+
       <hr />
-      <TimerFull title="Protivničko vrijeme" seconds={opponent.startAt} timerStarted={opponent.timerStarted} isNegative={handleNegativeTimeOpponent} />
+      <TimerFull
+        title="Protivničko vrijeme"
+        seconds={opponent.startAt}
+        timerStarted={opponent.timerStarted}
+        isNegative={handleNegativeTimeOpponent}
+        textColor={
+          isNegativeOpponent
+            ? "yellow"
+            : opponent.isReady
+            ? "green"
+            : opponent.isPenalized
+            ? "red"
+            : ""
+        }
+      />
       <hr />
-      <button className="teamReadyButton" onClick={(e) => handleReady(e)}>Spreman</button>
+      <button
+        className={"teamReadyButton"}
+        style={{ background: team.isReady && "#7f5af0" }} //Ovo si pogledaj jel oćeš ovu boju, ćisto da se nekak vidi da je kliknuto, nisam siguran koji bi drugi tekst stavil
+        onClick={(e) => handleReady(e)}
+      >
+        Spreman
+      </button>
     </section>
   );
 };
