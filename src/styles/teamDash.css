@@ -61,3 +61,22 @@
   font-size: 32px;
   font-weight: 700;
 }
+
+.yellow {
+  background-color: yellow;
+  color: var(--fbTextInvert);
+}
+
+.green {
+  background-color: var(--fbAccent);
+  color: var(--fbTextInvert);
+}
+
+.red {
+  background-color: red;
+  color: var(--fbTextInvert);
+}
+
+.teamDash article {
+  width: 100%;
+}
