@@ -6,6 +6,7 @@ import LoginPage from './views/loginPage';
 import TeamDash from './views/teamDash';
 import AdminLogin from './views/adminLogin';
 import reportWebVitals from './reportWebVitals';
+import DoubleEliminationBracket from './views/bracketView';
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebaseConfiguration";
@@ -18,12 +19,13 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AddTeam />} />
-        <Route path="teamLogin" element={<LoginPage />}/>
-        <Route path="teamDash" element={<TeamDash />}/>
+        <Route path="teamLogin" element={<LoginPage />} />
+        <Route path="teamDash" element={<TeamDash />} />
         <Route path="admin" element={<AdminLogin />} />
         <Route path="dashboard" element={user ? <Dashboard /> : <AdminLogin />} />
         <Route path="editTeam/:teamId" element={user ? <EditTeam /> : <AdminLogin />} />
         <Route path="add" element={user ? <Dashboard /> : <AdminLogin />} />
+        <Route path="bracket" element={<DoubleEliminationBracket />} />
       </Routes>
     </BrowserRouter>
   );
