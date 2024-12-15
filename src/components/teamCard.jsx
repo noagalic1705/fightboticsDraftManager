@@ -31,7 +31,7 @@ const TeamCard = ({ team, opponent }) => {
       <h2 className="text-xl font-bold">{team.name}</h2>
       <div className="flex justify-between mt-2">
         <div>
-          <p className="font-semibold">Time Left: <Timer startAt={team.startAt} timerStart={team.timerStarted} onNegative={handleNegativeTimeTeam} /></p>
+          <p className="font-semibold">Time Left: <Timer startAt={team.startAt} timerStart={team.timerStarted} onNegative={handleNegativeTimeTeam} timerStop={team.timerStoppedAt} /></p>
           <p className="font-semibold">Stage: {team.stage || "N/A"}</p>
           <p>Opponent: {team.opponent || "N/A"}</p>
         </div>

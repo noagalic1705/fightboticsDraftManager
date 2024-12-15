@@ -5,14 +5,13 @@ import { db } from "../firebaseConfiguration";
 import {
   doc,
   updateDoc,
-  getDoc,
+  onSnapshot,
   collection,
-  getDocs,
   serverTimestamp,
 } from "firebase/firestore";
 
 const EditTeam = () => {
-  const { teamId } = useParams(); // Get teamId from the route
+  const { teamId } = useParams();
   const navigate = useNavigate();
 
   const [team, setTeam] = useState(null);
@@ -20,21 +19,27 @@ const EditTeam = () => {
   const [selectedOpponent, setSelectedOpponent] = useState("");
 
   useEffect(() => {
-    const fetchTeam = async () => {
-      try {
-        const teamDoc = await getDoc(doc(db, "teams", teamId));
+    if (!teamId) return;
+  
+    const unsubscribeTeam = onSnapshot(
+      doc(db, "teams", teamId),
+      (teamDoc) => {
         if (teamDoc.exists()) {
-          setTeam({ id: teamDoc.id, ...teamDoc.data() });
-          setSelectedOpponent(teamDoc.data().opponent || "");
+          const teamData = { id: teamDoc.id, ...teamDoc.data() };
+          setTeam(teamData);
+          setSelectedOpponent(teamData.opponent || "");
+        } else {
+          console.error("Team document does not exist");
         }
-      } catch (error) {
+      },
+      (error) => {
         console.error("Error fetching team: ", error);
       }
-    };
-
-    const fetchOpponents = async () => {
-      try {
-        const teamsSnapshot = await getDocs(collection(db, "teams"));
+    );
+  
+    const unsubscribeOpponents = onSnapshot(
+      collection(db, "teams"),
+      (teamsSnapshot) => {
         const availableOpponents = [];
         teamsSnapshot.forEach((doc) => {
           const data = doc.data();
@@ -43,14 +48,18 @@ const EditTeam = () => {
           }
         });
         setOpponents(availableOpponents);
-      } catch (error) {
+      },
+      (error) => {
         console.error("Error fetching opponents: ", error);
       }
+    );
+  
+    return () => {
+      unsubscribeTeam();
+      unsubscribeOpponents();
     };
-
-    fetchTeam();
-    fetchOpponents();
   }, [teamId]);
+  
 
   const handleSave = async () => {
     try {
@@ -83,6 +92,7 @@ const EditTeam = () => {
     try {
       const teamRef = doc(db, "teams", teamId);
       await updateDoc(teamRef, { timerStarted: true });
+      await updateDoc(teamRef, { timerStoppedAt: ""})
     } catch (error) {
       console.error("Error starting timer: ", error);
     }
@@ -92,6 +102,7 @@ const EditTeam = () => {
     try {
       const teamRef = doc(db, "teams", teamId);
       await updateDoc(teamRef, { timerStarted: false });
+      await updateDoc(teamRef, { timerStoppedAt: serverTimestamp()})
     } catch (error) {
       console.error("Error stopping timer: ", error);
     }
@@ -114,6 +125,15 @@ const EditTeam = () => {
       console.error("Error removing penalty: ", error);
     }
   };
+
+  const handleRemoveReady = async () => {
+    try {
+      const teamRef = doc(db, "teams", teamId);
+      await updateDoc(teamRef, { isReady: false });
+    } catch (error) {
+      console.error("Error removing ready: ", error);
+    }
+  }
 
   const handleClearOpponent = async () => {
     try {
@@ -139,7 +159,7 @@ const EditTeam = () => {
       <h1 className="text-2xl font-bold text-center mb-4">{team.name || team.id}</h1>
       <div className="mb-4">
         <h4 className="text-lg font-semibold">Preostalo vrijeme:</h4>
-        <Timer startAt={team.startAt} timerStart={team.timerStarted} />
+        <Timer startAt={team.startAt} timerStart={team.timerStarted} timerStop={team.timerStoppedAt}/>
         <div className="flex gap-2 mt-2">
           <button
             onClick={handleResetTimer}
@@ -194,6 +214,12 @@ const EditTeam = () => {
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Makni penal
+        </button>
+        <button
+          onClick={handleRemoveReady}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Makni ready
         </button>
       </div>
       <button

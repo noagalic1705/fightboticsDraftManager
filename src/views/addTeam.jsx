@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { db } from "../firebaseConfiguration"; // Import your Firebase config file
+import { db } from "../firebaseConfiguration";
 import { doc, setDoc } from "firebase/firestore";
 
 const AddTeam = () => {
@@ -14,6 +14,7 @@ const AddTeam = () => {
   const [startAt, setStartAt] = useState("");
   const [shortcode, setSC] = useState("");
   const [timerStarted, setTimerStarted] = useState(false);
+  const [timerStoppedAt, setTimerStoppedAt] = useState("");
 
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -41,11 +42,11 @@ const AddTeam = () => {
         password,
         shortcode,
         startAt,
-        timerStarted
+        timerStarted,
+        timerStoppedAt
       };
       await setDoc(doc(db, "teams", name), newTeam);
       alert("Team added successfully!");
-      // Reset form fields
       setName("");
       setOpponent("");
       setStage("");
@@ -57,6 +58,7 @@ const AddTeam = () => {
       setSC("");
       setStartAt("");
       setTimerStarted(false);
+      setTimerStoppedAt("");
     } catch (error) {
       console.error("Error adding team: ", error);
       alert("Failed to add team.");

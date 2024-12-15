@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 
-const Timer = ({ startAt, timerStart, onNegative, textColor }) => {
+const Timer = ({ startAt, timerStart, onNegative, timerStop, textColor }) => {
   const [timeLeft, setTimeLeft] = useState("");
-  const [timerStarted, setTimerStarted] = useState(true);
 
   useEffect(() => {
-    if (!startAt || !timerStarted) return;
+    if (!startAt) return;
 
-    const calculateTimeLeft = () => {
-      const currentTime = Date.now();
+    const calculateTimeLeft = (timerStopped) => {
+      var currentTime = Date.now();
+      if (timerStopped) {
+        currentTime = new Date(timerStopped.seconds * 1000).getTime();
+      }
       const startTime = new Date(startAt.seconds * 1000).getTime();
       const elapsed = Math.floor((currentTime - startTime) / 1000);
       const totalDuration = 15 * 60;
@@ -27,13 +29,16 @@ const Timer = ({ startAt, timerStart, onNegative, textColor }) => {
       }
     };
 
-    calculateTimeLeft();
+    calculateTimeLeft(timerStop);
+
+    if (!timerStart) return;
+
     const intervalId = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(intervalId);
-  }, [startAt, onNegative, timerStart]);
+  }, [startAt, onNegative, timerStart, timerStop, textColor]);
 
-  return <span style={textColor && { color: textColor }}>{timeLeft}</span>;
+  return <span style={{ color: textColor }}>{timeLeft}</span>;
 };
 
 export default Timer;

@@ -6,11 +6,15 @@ import LoginPage from './views/loginPage';
 import TeamDash from './views/teamDash';
 import AdminLogin from './views/adminLogin';
 import reportWebVitals from './reportWebVitals';
-import DoubleEliminationBracket from './views/bracketView';
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebaseConfiguration";
 import EditTeam from './views/editTeam';
+import WinnerEdit from './views/winnerEdit';
+import WinnerBracket from './views/winnerBracket';
+import Populate from './views/editBracket';
+import LoserBracket from './views/loserBracket';
+import LoserEdit from './views/loserEdit';
 
 
 export default function App() {
@@ -18,14 +22,18 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AddTeam />} />
+        <Route path="/" element={<WinnerBracket />} />
         <Route path="teamLogin" element={<LoginPage />} />
         <Route path="teamDash" element={<TeamDash />} />
         <Route path="admin" element={<AdminLogin />} />
         <Route path="dashboard" element={user ? <Dashboard /> : <AdminLogin />} />
         <Route path="editTeam/:teamId" element={user ? <EditTeam /> : <AdminLogin />} />
         <Route path="add" element={user ? <Dashboard /> : <AdminLogin />} />
-        <Route path="bracket" element={<DoubleEliminationBracket />} />
+        <Route path="winnerEdit" element={user ? <WinnerEdit /> : <AdminLogin />} />
+        <Route path="winnerBracket" element={<WinnerBracket />} />
+        <Route path="loserBracket" element={<LoserBracket />} />
+        <Route path="loserEdit" element={user ? <LoserEdit /> : <AdminLogin />} />
+        <Route path="addTeam" element={user ? <AddTeam/> : <AdminLogin />}/>
       </Routes>
     </BrowserRouter>
   );

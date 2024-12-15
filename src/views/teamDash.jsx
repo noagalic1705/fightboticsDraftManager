@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import "../styles/teamDash.css";
 import { useNavigate } from "react-router";
 import Timer from "../components/timer";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfiguration";
 
-const TimerFull = ({ title, seconds, timerStarted, isNegative, textColor }) => {
+const TimerFull = ({ title, seconds, timerStarted, isNegative, timerStopped, textColor }) => {
   return (
     <div className="timerDash ">
       <h4>{title}</h4>
@@ -14,6 +14,7 @@ const TimerFull = ({ title, seconds, timerStarted, isNegative, textColor }) => {
           startAt={seconds}
           timerStart={timerStarted}
           onNegative={isNegative}
+          timerStop={timerStopped}
           textColor={textColor}
         />
       </h2>
@@ -22,7 +23,6 @@ const TimerFull = ({ title, seconds, timerStarted, isNegative, textColor }) => {
 };
 
 const TeamDash = () => {
-  const mockStartAt = { seconds: Math.floor(Date.now() / 1000) - 800 }; // AKO TREBA ZA TEST
 
   const [isNegativeTeam, setIsNegativeTeam] = useState(false);
   const [isNegativeOpponent, setIsNegativeOpponent] = useState(false);
@@ -38,19 +38,16 @@ const TeamDash = () => {
   const handleNegativeTimeOpponent = () => {
     setIsNegativeOpponent(true);
   };
+
   const handleReady = async (e) => {
     e.preventDefault();
     try {
       const teamRef = doc(db, "teams", team.id);
-      await updateDoc(teamRef, {
-        isReady: true,
-      });
+      await updateDoc(teamRef, { isReady: true, timerStarted: false, timerStoppedAt: serverTimestamp() });
     } catch (error) {
       console.error("Error saving changes: ", error);
     }
   };
-
-  console.log(team);
 
   useEffect(() => {
     const storedData = localStorage.getItem("teamData");
@@ -63,26 +60,35 @@ const TeamDash = () => {
 
   useEffect(() => {
     if (!teamData) return;
-
-    const fetchTeams = async () => {
-      try {
-        const teamsSnapshot = await getDocs(collection(db, "teams"));
-        teamsSnapshot.forEach((doc) => {
-          if (doc.id === teamData.id) {
-            setTeam({ id: doc.id, ...doc.data() });
-          } else if (doc.id === teamData.opponent) {
-            setOpponent({ id: doc.id, ...doc.data() });
-          }
-        });
-      } catch (error) {
-        console.error("Error fetching teams: ", error);
-      }
-    };
-
-    fetchTeams();
+  
+    const teamRef = doc(db, "teams", teamData.id);
+  
+    const unsubscribeTeam = onSnapshot(
+      teamRef,
+      async (teamSnapshot) => {
+        const teamInfo = { id: teamSnapshot.id, ...teamSnapshot.data() };
+        setTeam(teamInfo);
+  
+        if (teamInfo.opponent) {
+          const opponentRef = doc(db, "teams", teamInfo.opponent);
+          const unsubscribeOpponent = onSnapshot(
+            opponentRef,
+            (opponentSnapshot) => setOpponent({ id: opponentSnapshot.id, ...opponentSnapshot.data() }),
+            (error) => console.error("Error fetching opponent data:", error)
+          );
+  
+          return () => unsubscribeOpponent();
+        } else {
+          setOpponent(null);
+        }
+      },
+      (error) => console.error("Error fetching team data:", error)
+    );
+  
+    return () => unsubscribeTeam();
   }, [teamData]);
 
-  if (!teamData || !team || !opponent) {
+  if (!teamData || !team) {
     return <div>Loading...</div>;
   }
 
@@ -92,18 +98,18 @@ const TeamDash = () => {
       <hr />
       <article className="nextRivalTeamDash">
         <h4>Sljedeći protivnik:</h4>
-        <h3 className="nextRivalNameDash">{team.opponent ?? "TBA"}</h3>
+        <h3 className="nextRivalNameDash">{team.opponent ? team.opponent : "TBA"}</h3>
       </article>
       <hr />
       <article
         className={
-          isNegativeTeam
-            ? "yellow"
-            : team.isReady
-            ? "green"
-            : team.isPenalized
+          team.isPenalized
             ? "red"
-            : ""
+            : team.isReady
+              ? "green"
+              : isNegativeTeam
+                ? "yellow"
+                : ""
         }
       >
         <TimerFull
@@ -111,25 +117,35 @@ const TeamDash = () => {
           seconds={team.startAt}
           timerStarted={team.timerStarted}
           isNegative={handleNegativeTimeTeam}
+          timerStopped={team.timerStoppedAt}
         />
       </article>
 
       <hr />
-      <TimerFull
-        title="Protivničko vrijeme"
-        seconds={opponent.startAt}
-        timerStarted={opponent.timerStarted}
-        isNegative={handleNegativeTimeOpponent}
-        textColor={
-          isNegativeOpponent
-            ? "yellow"
-            : opponent.isReady
-            ? "green"
-            : opponent.isPenalized
-            ? "red"
-            : ""
-        }
-      />
+      {!opponent ?
+        <div className="timerDash ">
+          <h4>Protivničko vrijeme</h4>
+          <h2>
+            --:--
+          </h2>
+        </div>
+        :
+        <TimerFull
+          title="Protivničko vrijeme"
+          seconds={opponent.startAt}
+          timerStarted={opponent.timerStarted}
+          isNegative={handleNegativeTimeOpponent}
+          timerStopped={opponent.timerStoppedAt}
+          textColor={
+            opponent.isPenalized
+              ? "red"
+              : opponent.isReady
+                ? "green"
+                : isNegativeOpponent
+                  ? "yellow"
+                  : ""
+          }
+        />}
       <hr />
       <button
         className={"teamReadyButton"}
