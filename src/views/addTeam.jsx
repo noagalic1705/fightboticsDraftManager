@@ -12,14 +12,16 @@ const AddTeam = () => {
   const [isReady, setIsReady] = useState(false);
   const [password, setPassword] = useState("");
   const [startAt, setStartAt] = useState("");
-  const [shortcode, setSC] = useState("");
+  // const [shortcode, setSC] = useState("");
   const [timerStarted, setTimerStarted] = useState(false);
   const [timerStoppedAt, setTimerStoppedAt] = useState("");
+  const [freebieAllowed, setFreebieAllowed] = useState(true);
+  const [needsApproval, setNeedsApproval] = useState(false);
 
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   function generatePassword(length) {
-    let result = '';
+    let result = "";
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -40,10 +42,12 @@ const AddTeam = () => {
         isPenalized,
         isReady,
         password,
-        shortcode,
+        // shortcode,
         startAt,
         timerStarted,
-        timerStoppedAt
+        timerStoppedAt,
+        freebieAllowed,
+        needsApproval,
       };
       await setDoc(doc(db, "teams", name), newTeam);
       alert("Team added successfully!");
@@ -55,10 +59,12 @@ const AddTeam = () => {
       setIsPenalized(false);
       setIsReady(false);
       setPassword("");
-      setSC("");
+      // setSC("");
       setStartAt("");
       setTimerStarted(false);
       setTimerStoppedAt("");
+      setFreebieAllowed(true);
+      setNeedsApproval(false);
     } catch (error) {
       console.error("Error adding team: ", error);
       alert("Failed to add team.");
@@ -70,45 +76,22 @@ const AddTeam = () => {
       <form onSubmit={handleSubmit} class="flex flex-col space-y-5">
         <div>
           <label>Team Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            class="border-2 border-black"
-          />
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required class="border-2 border-black" />
         </div>
-        <div>
+        {/* <div>
           <label>Team Shortcode:</label>
-          <input
-            type="text"
-            value={shortcode}
-            onChange={(e) => setSC(e.target.value)}
-            required
-            class="border-2 border-black"
-          />
-        </div>
+          <input type="text" value={shortcode} onChange={(e) => setSC(e.target.value)} required class="border-2 border-black" />
+        </div> */}
         <div>
           <label>Password:</label>
-          <input
-            type="text"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            class="border-2 border-black"
-          />
-          <button
-            type="button"
-            class="border-2 border-black"
-            onClick={() => setPassword(generatePassword(5))
-            }>
+          <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} required class="border-2 border-black" />
+          <button type="button" class="border-2 border-black" onClick={() => setPassword(generatePassword(5))}>
             Generate Password
           </button>
         </div>
-        <button
-          type="submit"
-          class="flex justify-center border-2 border-black"
-        >Add Team</button>
+        <button type="submit" class="flex justify-center border-2 border-black">
+          Add Team
+        </button>
       </form>
     </div>
   );

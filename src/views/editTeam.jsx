@@ -2,13 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Timer from "../components/timer";
 import { db } from "../firebaseConfiguration";
-import {
-  doc,
-  updateDoc,
-  onSnapshot,
-  collection,
-  serverTimestamp,
-} from "firebase/firestore";
+import { doc, updateDoc, onSnapshot, collection, serverTimestamp, Timestamp } from "firebase/firestore";
 
 const EditTeam = () => {
   const { teamId } = useParams();
@@ -20,7 +14,7 @@ const EditTeam = () => {
 
   useEffect(() => {
     if (!teamId) return;
-  
+
     const unsubscribeTeam = onSnapshot(
       doc(db, "teams", teamId),
       (teamDoc) => {
@@ -36,7 +30,7 @@ const EditTeam = () => {
         console.error("Error fetching team: ", error);
       }
     );
-  
+
     const unsubscribeOpponents = onSnapshot(
       collection(db, "teams"),
       (teamsSnapshot) => {
@@ -53,13 +47,12 @@ const EditTeam = () => {
         console.error("Error fetching opponents: ", error);
       }
     );
-  
+
     return () => {
       unsubscribeTeam();
       unsubscribeOpponents();
     };
   }, [teamId]);
-  
 
   const handleSave = async () => {
     try {
@@ -92,7 +85,7 @@ const EditTeam = () => {
     try {
       const teamRef = doc(db, "teams", teamId);
       await updateDoc(teamRef, { timerStarted: true });
-      await updateDoc(teamRef, { timerStoppedAt: ""})
+      await updateDoc(teamRef, { timerStoppedAt: "" });
     } catch (error) {
       console.error("Error starting timer: ", error);
     }
@@ -102,9 +95,20 @@ const EditTeam = () => {
     try {
       const teamRef = doc(db, "teams", teamId);
       await updateDoc(teamRef, { timerStarted: false });
-      await updateDoc(teamRef, { timerStoppedAt: serverTimestamp()})
+      await updateDoc(teamRef, { timerStoppedAt: serverTimestamp() });
     } catch (error) {
       console.error("Error stopping timer: ", error);
+    }
+  };
+
+  const handleAddTimer = async () => {
+    try {
+      const teamRef = doc(db, "teams", teamId);
+      const timer = Timestamp.fromMillis(team.startAt.toMillis() + 10 * 60 * 1000);
+      await updateDoc(teamRef, { startAt: timer });
+      await updateDoc(teamRef, { needsApproval: false });
+    } catch (error) {
+      console.error("Error adding time: ", error);
     }
   };
 
@@ -133,7 +137,7 @@ const EditTeam = () => {
     } catch (error) {
       console.error("Error removing ready: ", error);
     }
-  }
+  };
 
   const handleClearOpponent = async () => {
     try {
@@ -159,25 +163,19 @@ const EditTeam = () => {
       <h1 className="text-2xl font-bold text-center mb-4">{team.name || team.id}</h1>
       <div className="mb-4">
         <h4 className="text-lg font-semibold">Preostalo vrijeme:</h4>
-        <Timer startAt={team.startAt} timerStart={team.timerStarted} timerStop={team.timerStoppedAt}/>
+        <Timer startAt={team.startAt} timerStart={team.timerStarted} timerStop={team.timerStoppedAt} />
         <div className="flex gap-2 mt-2">
-          <button
-            onClick={handleResetTimer}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
+          <button onClick={handleResetTimer} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             Reset
           </button>
-          <button
-            onClick={handleStartTimer}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
+          <button onClick={handleStartTimer} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             Start
           </button>
-          <button
-            onClick={handleStopTimer}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
+          <button onClick={handleStopTimer} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             Stop
+          </button>
+          <button onClick={handleAddTimer} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            +10 min
           </button>
         </div>
       </div>
@@ -195,37 +193,22 @@ const EditTeam = () => {
             </option>
           ))}
         </select>
-        <button
-          onClick={handleClearOpponent}
-          className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
+        <button onClick={handleClearOpponent} className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
           Očisti protivnika
         </button>
       </div>
       <div className="flex gap-2 mb-4">
-        <button
-          onClick={handlePenalize}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
+        <button onClick={handlePenalize} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
           Penaliziraj
         </button>
-        <button
-          onClick={handleRemovePenalty}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
+        <button onClick={handleRemovePenalty} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
           Makni penal
         </button>
-        <button
-          onClick={handleRemoveReady}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
+        <button onClick={handleRemoveReady} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
           Makni ready
         </button>
       </div>
-      <button
-        onClick={handleSave}
-        className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 w-full"
-      >
+      <button onClick={handleSave} className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 w-full">
         Spremi
       </button>
     </section>
