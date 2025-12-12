@@ -1,21 +1,20 @@
-import React from 'react';
-import './index.css';
-import AddTeam from './views/addTeam';
-import Dashboard from './views/adminDash';
-import LoginPage from './views/loginPage';
-import TeamDash from './views/teamDash';
-import AdminLogin from './views/adminLogin';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import "./index.css";
+import AddTeam from "./views/addTeam";
+import Dashboard from "./views/adminDash";
+import LoginPage from "./views/loginPage";
+import TeamDash from "./views/teamDash";
+import AdminLogin from "./views/adminLogin";
+import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebaseConfiguration";
-import EditTeam from './views/editTeam';
-import WinnerEdit from './views/winnerEdit';
-import WinnerBracket from './views/winnerBracket';
-import Populate from './views/editBracket';
-import LoserBracket from './views/loserBracket';
-import LoserEdit from './views/loserEdit';
-
+import EditTeam from "./views/editTeam";
+import WinnerEdit from "./views/winnerEdit";
+import WinnerBracket from "./views/winnerBracket";
+import Populate from "./views/editBracket";
+import LoserBracket from "./views/loserBracket";
+import LoserEdit from "./views/loserEdit";
 
 export default function App() {
   const [user] = useAuthState(auth);
@@ -33,7 +32,8 @@ export default function App() {
         <Route path="winnerBracket" element={<WinnerBracket />} />
         <Route path="loserBracket" element={<LoserBracket />} />
         <Route path="loserEdit" element={user ? <LoserEdit /> : <AdminLogin />} />
-        <Route path="addTeam" element={user ? <AddTeam/> : <AdminLogin />}/>
+        <Route path="addTeam" element={user ? <AddTeam /> : <AdminLogin />} />
+        <Route path="populateBracket" element={user ? <Populate /> : <AdminLogin />} />
       </Routes>
     </BrowserRouter>
   );

@@ -34,8 +34,8 @@ const Bracket = ({ isEdit, isWinner }) => {
   }, {});
 
   const roundNames = isWinner
-    ? ["Pripravna runda", "Četvrtina finala", "Polufinale", "Pre-Finale", "Veliko finale"]
-    : ["Pripravna runda", "Četvrtina finala", "Polufinale", "Pre-Finale", "Malo finale"];
+    ? ["Pripravna runda", "Osmina finala", "Četvrtina finala", "Polufinale", "Pre-Finale", "Veliko finale"]
+    : ["Pripravna runda 1", "Pripravna runda 2", "Osmina finala", "Četvrtina finala", "Polufinale", "Pre-Finale", "Malo finale"];
 
   return (
     <div className="grid grid-cols-6 gap-4 p-4 flex items-center justify-center">
